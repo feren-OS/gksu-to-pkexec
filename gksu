@@ -1,0 +1,44 @@
+#!/bin/bash
+if [ -z "$PATH" ]; then
+    bkuppaths="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+else
+    bkuppaths="$PATH"
+fi
+
+argcount=0
+stoptrying=false
+arguments=$@
+for d in ${bkuppaths//:/ }; do
+    for argument in "$@"; do
+        if [ $stoptrying = false ]; then
+            argcount=$(($argcount+1))
+            if [ -f "$argument" ] && [[ -x "$argument" ]]; then
+                #Got a command
+                command1="$argument"
+                #We have what we need now, lets block searching.
+                stoptrying=true
+            fi
+            if [ $stoptrying = false ]; then
+                #In this case the command hasn't been found in the current directory, so it's now checking through PATH.
+                for d in ${bkuppaths//:/ }; do
+                    if [ -f "$d/$argument" ] && [[ -x "$d/$argument" ]]; then
+                        #Got a command
+                        command1="$argument"
+                        #We have what we need now, lets block searching.
+                        stoptrying=true
+                    fi
+                done
+            fi
+        fi
+    done
+done
+#Remove the bits arguments before the executable command with sed
+arguments=$(echo $arguments | sed "s%.* $command1%$command1%g")
+echo "$arguments"
+if [ -z "$command1" ]; then
+    echo "Command Not Found."
+    exit -1
+fi
+echo "GKSU is depreciated. Please move to PKEXEC."
+pkexec env org.freedesktop.policykit.exec.allow_gui=TRUE DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY $arguments
+exit $?
