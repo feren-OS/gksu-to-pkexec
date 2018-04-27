@@ -1,43 +1,21 @@
 #!/bin/bash
-#Making sure PATH is set for later, feel free to replace the backup path value with your distro's PATH value, just in case PATH isn't set before the script is run.
 if [ -z "$PATH" ]; then
     bkuppaths="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
 else
     bkuppaths="$PATH"
 fi
 
-argcount=0 #A count up to the argument with the executable command
-stoptrying=false #Since I forget how to escape loops in BASH, we'll use this easier to remember method
-arguments=$@ #Assign the All Arguments Variable data to 'arguments', for some SED-ing later.
-for argument in "$@"; do #Loop over arguments
-    if [ $stoptrying = false ]; then
-        argcount=$(($argcount+1))
-        for d in ${bkuppaths//:/ }; do #searching for it first in every PATH variable directory
-            if [ -f "$d/$argument" ] && [[ -x "$d/$argument" ]]; then
-                #Got a command
-                command1="$argument"
-                #We have what we need now, lets block searching.
-                stoptrying=true
-            fi
-        done
-        if [ $stoptrying = false ]; then #Lets look in the current folder now
-            #In this case the command hasn't been found in the current directory, so it's now checking through PATH.
-            if [ -f "$argument" ] && [[ -x "$argument" ]]; then #if it exists and is executable as a file...
-                #Got a command
-                command1="$argument"
-                #We have what we need now, lets block searching.
-                stoptrying=true
-            fi
-        fi
+argcount=0
+stoptrying=false
+arguments=$@
+for argument in "$@"; do
+    if [[ "$argument" = "-u" ]] || [[ "$argument" = "-w" ]] || [[ "$argument" = "-m" ]] || [[ "$argument" = "-S" ]] || [[ "$argument" = "--user" ]] || [[ "$argument" = "--description" ]] || [[ "$argument" = "--message" ]]; then
+        shift
+        shift
     fi
 done
+arguments="$@"
 #Remove the bits arguments before the executable command with sed
-arguments=$(echo $arguments | sed "s%.* $command1%$command1%g") #Remove the arguments before the command itself
-if [ -z "$command1" ]; then
-    echo "Command Not Found."
-    exit -1
-fi
-echo "$arguments"
 echo "GKSU is depreciated. Please move to PKEXEC."
 pkexec env org.freedesktop.policykit.exec.allow_gui=TRUE DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY $arguments
 exit $?
