@@ -9,8 +9,10 @@ argcount=0
 stoptrying=false
 arguments=$@
 for argument in "$@"; do
-    if [[ "$argument" = "-u" ]] || [[ "$argument" = "-w" ]] || [[ "$argument" = "-m" ]] || [[ "$argument" = "-S" ]] || [[ "$argument" = "--user" ]] || [[ "$argument" = "--description" ]] || [[ "$argument" = "--message" ]] || [[ "$argument" = "--" ]]; then
+    if [[ "$1" = "-u" ]] || [[ "$1" = "-w" ]] || [[ "$1" = "-m" ]] || [[ "$1" = "-S" ]] || [[ "$1" = "--user" ]] || [[ "$1" = "--description" ]] || [[ "$1" = "--message" ]]; then
         shift
+        shift
+    elif [[ "$argument" = "--" ]]; then
         shift
     fi
 done
