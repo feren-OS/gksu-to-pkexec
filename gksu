@@ -9,11 +9,14 @@ argcount=0
 stoptrying=false
 arguments=$@
 for argument in "$@"; do
-    if [[ "$1" = "-u" ]] || [[ "$1" = "-w" ]] || [[ "$1" = "-m" ]] || [[ "$1" = "-S" ]] || [[ "$1" = "--user" ]] || [[ "$1" = "--description" ]] || [[ "$1" = "--message" ]]; then
-        shift
-        shift
-    elif [[ "$argument" = "--" ]]; then
-        shift
+    if [ "$stoptrying" = false ]; then
+        if [[ "$1" = "-u" ]] || [[ "$1" = "-w" ]] || [[ "$1" = "-m" ]] || [[ "$1" = "-S" ]] || [[ "$1" = "--user" ]] || [[ "$1" = "--description" ]] || [[ "$1" = "--message" ]]; then
+            shift
+            shift
+        elif [[ "$argument" = "--" ]]; then
+            shift
+            stoptrying=true
+        fi
     fi
 done
 arguments="$@"
